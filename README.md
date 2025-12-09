@@ -4,7 +4,7 @@ This project predicts used car prices for the Cars4You platform using supervised
 
 ## Project structure
 
-- `data/raw/` – original Kaggle data (`train.csv`, `test.csv`, `sample_submission.csv`)
+- `data/raw/` – original Kaggle data (`train.csv`, `test.csv`)
 - `data/processed/` – (optional) processed datasets or feature matrices
 - `notebooks/` – Jupyter notebooks for EDA, modelling and evaluation
 - `src/` – Python modules for preprocessing, training and inference
