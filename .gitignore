@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Models
+models/
+*.pkl
+
+# (Optional) Data
+# Se não quiseres fazer commit dos dados, descomenta estas linhas:
+# data/raw/
+# data/processed/
