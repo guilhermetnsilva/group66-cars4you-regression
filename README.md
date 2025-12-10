@@ -8,7 +8,7 @@ This repository contains the final project for Group 66, focused on predicting u
 - `data/processed/` – (optional) processed datasets or feature matrices
 - `notebooks/` – Jupyter notebooks for EDA, modelling and evaluation  
   - main notebook: `ML_project.ipynb`
-- `src/` – (reserved) Python modules for preprocessing, training and inference (future refactor)
+- `src/` – Python modules for data loading and modelling (e.g. `data_loading.py`)
 - `submissions/` – final prediction files for Kaggle/assessment (e.g. `group66_rf_submission.csv`)
 - `models/` – local model artifacts (e.g. `car_price_bundle.joblib`, ignored in version control)
 - `.gitignore` – files and folders that are excluded from version control
