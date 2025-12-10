@@ -4,7 +4,7 @@ This repository contains the final project for Group 66, focused on predicting u
 
 ## Project structure
 
-- `data/raw/` – original Kaggle data (`train.csv`, `test.csv`)
+- `data/raw/` – original data (`train.csv`, `test.csv`)
 - `data/processed/` – (optional) processed datasets or feature matrices
 - `notebooks/` – Jupyter notebooks for EDA, modelling and evaluation  
   - main notebook: `ML_project.ipynb`
