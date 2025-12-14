@@ -20,7 +20,3 @@ Thumbs.db
 models/
 *.pkl
 
-# (Optional) Data
-# Se não quiseres fazer commit dos dados, descomenta estas linhas:
-# data/raw/
-# data/processed/
