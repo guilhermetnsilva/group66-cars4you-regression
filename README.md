@@ -56,3 +56,14 @@ joblib.dump(bundle, "../models/car_price_bundle.joblib")
 
 The models/ folder and Joblib artifacts are ignored by Git and are therefore not included in the repository, but the saving/loading logic is documented in the notebook.
 
+## Figures
+
+The folder `figures/` contains the main visual outputs generated during the EDA and exploratory feature analysis, exported from the notebook for easier review.
+
+It includes:
+- **Univariate distributions** (e.g. `Histograms for each numerical variable.png`)
+- **Boxplots** for numeric variables (e.g. `Boxplot of price.png`, `Boxplot of mileage.png`, `Boxplot of engineSize.png`)
+- **Bivariate relationships** with price (e.g. `Relationship between Price and mileage.png`, `Relationship between Price and year.png`)
+- **Pairplot** overview (`Pairplot.png`)
+- **Category-level summaries** (e.g. frequency vs mean price plots such as `Relationship between Brand Frequency and Mean Price.png`)
+
