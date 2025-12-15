@@ -10,7 +10,7 @@ This repository contains the final project for Group 66, focused on predicting u
   - main notebook: `ML_project.ipynb`
 - `src/` – Python modules for data loading and modelling (e.g. `data_loading.py`)
 - `submissions/` – final prediction files for Kaggle/assessment (e.g. `group66_rf_submission.csv`)
-- `models/` – local model artifacts (e.g. `car_price_bundle.joblib`, ignored in version control)
+- `models/` – trained model bundle used for inference (car_price_bundle.joblib)
 - `.gitignore` – files and folders that are excluded from version control
 - `requirements.txt` – Python dependencies
 
@@ -54,7 +54,7 @@ import joblib
 joblib.dump(bundle, "../models/car_price_bundle.joblib")
 ```
 
-The models/ folder and Joblib artifacts are ignored by Git and are therefore not included in the repository, but the saving/loading logic is documented in the notebook.
+The trained bundle is included in this repository so the Streamlit app can run without retraining.
 
 ## Figures
 
@@ -66,4 +66,16 @@ It includes:
 - Bivariate relationships with price (e.g. `Relationship between Price and mileage.png`, `Relationship between Price and year.png`)
 - Pairplot** overview (`Pairplot.png`)
 - *Category-level summaries (e.g. frequency vs mean price plots such as `Relationship between Brand Frequency and Mean Price.png`)
+
+## Streamlit demo (Open-ended / Deployment)
+
+A simple Streamlit app is provided in `app/app.py` to predict the price for a custom user-defined car (single row input).  
+It loads the pre-trained bundle from `models/car_price_bundle.joblib` and applies the same preprocessing and feature engineering used in training.
+
+Run locally from the repository root:
+
+```bash
+pip install -r requirements.txt
+streamlit run app/app.py
+
 
