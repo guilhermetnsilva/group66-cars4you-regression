@@ -2,8 +2,6 @@
 
 This repository contains the final project for Group 66, focused on predicting used car prices for the Cars4You platform using supervised machine learning (regression).
 
----
-
 ## Project structure
 
 ```text
