@@ -6,3 +6,4 @@ scikit-learn
 thefuzz
 joblib
 shap
+streamlit

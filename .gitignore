@@ -16,7 +16,9 @@ env/
 .DS_Store
 Thumbs.db
 
-# Models
-models/
+# Models (track only the final bundle)
+models/*
+!models/car_price_bundle.joblib
 *.pkl
+
 
