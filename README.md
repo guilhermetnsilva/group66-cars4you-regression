@@ -2,33 +2,45 @@
 
 This repository contains the final project for Group 66, focused on predicting used car prices for the Cars4You platform using supervised machine learning (regression).
 
+---
+
 ## Project structure
 
-- `data/raw/` – original data (`train.csv`, `test.csv`)
-- `data/processed/` – (optional) processed datasets or feature matrices
-- `notebooks/` – Jupyter notebooks for EDA, modelling and evaluation  
-  - main notebook: `ML_project.ipynb`
-- `src/` – Python modules for data loading and modelling (e.g. `data_loading.py`)
-- `submissions/` – final prediction files for Kaggle/assessment (e.g. `group66_rf_submission.csv`)
-- `models/` – trained model bundle used for inference (car_price_bundle.joblib)
-- `.gitignore` – files and folders that are excluded from version control
-- `requirements.txt` – Python dependencies
+```text
+.
+├── app/
+│   └── app.py                        # Streamlit demo (single-row prediction)
+├── data/
+│   └── raw/                          # Original provided datasets
+│       ├── train.csv                 # Training set
+│       └── test.csv                  # Test set
+├── figures/                          # Exported plots from EDA / exploratory analysis
+├── models/
+│   └── car_price_bundle.joblib       # Trained model + preprocessing bundle for inference
+├── notebooks/
+│   └── ML_project.ipynb              # Main notebook (EDA → modeling → final submission)
+├── src/                              # Python modules used by notebook/app 
+│   ├── data_loading.py               # Data loading utilities 
+│   ├── modeling.py                   # Training / evaluation / inference utilities 
+│   └── ...                           # Additional helper modules (if applicable)
+├── submissions/
+│   └── group66_rf_submission.csv     # Final predictions in required format
+├── requirements.txt                  # Python dependencies
+├── .gitignore                        # Files/folders excluded from version control
+└── README.md                         # Project documentation
+```
+
 
 ## How to run
 
 1. Make sure the files `train.csv` and `test.csv` are in `data/raw/`.
 
-2. Install dependencies (ideally in a virtual environment):
+2. Install dependencies:
 
    ```bash
    pip install -r requirements.txt
    
 3. Open the notebook in notebooks/ (e.g. ML_project.ipynb) and run the cells in order.
-The notebook assumes the data is available in data/raw/ using relative paths such as:
-
-   ```python
-   train_data = pd.read_csv("../data/raw/train.csv")
-   test_data = pd.read_csv("../data/raw/test.csv")
 
 ## Final model and predictions
 
@@ -67,7 +79,7 @@ It includes:
 - Pairplot** overview (`Pairplot.png`)
 - *Category-level summaries (e.g. frequency vs mean price plots such as `Relationship between Brand Frequency and Mean Price.png`)
 
-## Streamlit demo (Open-ended / Deployment)
+## Streamlit Demo (Open-ended / Deployment)
 
 A simple Streamlit app is provided in `app/app.py` to predict the price for a custom user-defined car (single row input).  
 It loads the pre-trained bundle from `models/car_price_bundle.joblib` and applies the same preprocessing and feature engineering used in training.
