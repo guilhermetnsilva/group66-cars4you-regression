@@ -1,3 +1,4 @@
+
 import sys
 from pathlib import Path
 
@@ -234,8 +235,34 @@ def predict_price_from_dict(input_data: dict) -> float:
     return float(np.asarray(y_pred).ravel()[0])
 
 # Streamlit UI
+
 st.set_page_config(page_title="Used Car Price Prediction", page_icon="🚗")
 st.title("Used Car Price Prediction")
+
+# Short description under the title
+st.markdown("""
+Enter a car configuration and click **Predict price**.
+""")
+
+with st.sidebar:
+    st.header("About")
+    st.write(
+        "This demo estimates the price of a used car from a custom configuration. "
+        "It uses a **pre-trained regression model** (loaded from a saved bundle), "
+        "so predictions are instant and no retraining is required."
+    )
+
+    st.subheader("Tips for better estimates")
+    st.markdown(
+        "- Use realistic mileage and year\n"
+        "- Model text can include minor typos (it will be normalized)\n"
+        "- Try changing one field at a time to see the impact"
+    )
+
+    st.caption("Group 66 | Cars4You Regression")
+
+
+st.subheader("Car details")
 
 col1, col2 = st.columns(2)
 
@@ -245,21 +272,70 @@ AVAILABLE_BRANDS = [
 ]
 
 with col1:
-    brand = st.selectbox("Brand", AVAILABLE_BRANDS)
-    model = st.text_input("Model", "A3")
-    year = st.number_input("Year", min_value=1990, max_value=2020, value=2016)
-    fuel_type = st.selectbox("Fuel type", ["Petrol", "Diesel", "Hybrid", "Electric"])
-    engine_size = st.number_input("Engine size (L)", min_value=0.5, max_value=6.0, value=1.6, step=0.1)
+    brand = st.selectbox(
+        "Brand",
+        AVAILABLE_BRANDS,
+        help="Pick one of the supported brands."
+    )
+    model = st.text_input(
+        "Model",
+        "A3",
+        help="Free text. The app normalizes common typos/spaces."
+    )
+    year = st.number_input(
+        "Year",
+        min_value=1990,
+        max_value=2020,
+        value=2016,
+        help="The model was trained with years up to 2020."
+    )
+    fuel_type = st.selectbox(
+        "Fuel type",
+        ["Petrol", "Diesel", "Hybrid", "Electric"],
+        help="Fuel type as used in the training dataset."
+    )
+    engine_size = st.number_input(
+        "Engine size (L)",
+        min_value=0.5,
+        max_value=6.0,
+        value=1.6,
+        step=0.1,
+        help="Engine displacement in liters."
+    )
 
 with col2:
-    mileage = st.number_input("Mileage", min_value=0, max_value=500000, value=120000, step=1000)
-    tax = st.number_input("Annual tax (£)", min_value=0, max_value=1000, value=150)
-    mpg = st.number_input("MPG", min_value=5.0, max_value=100.0, value=45.0, step=0.5)
-    transmission = st.selectbox("Transmission", ["Manual", "Automatic", "Semi-Auto"])
+    mileage = st.number_input(
+        "Mileage",
+        min_value=0,
+        max_value=500000,
+        value=120000,
+        step=1000,
+        help="Total mileage of the car."
+    )
+    tax = st.number_input(
+        "Annual tax (£)",
+        min_value=0,
+        max_value=1000,
+        value=150,
+        help="Annual tax in pounds (£)."
+    )
+    mpg = st.number_input(
+        "MPG",
+        min_value=5.0,
+        max_value=100.0,
+        value=45.0,
+        step=0.5,
+        help="Miles per gallon."
+    )
+    transmission = st.selectbox(
+        "Transmission",
+        ["Manual", "Automatic", "Semi-Auto"],
+        help="Transmission type."
+    )
 
-
+# Button with input validation + spinner feedback
 if st.button("Predict price"):
-    # Build the input row using the exact column names used in the model pipeline
+    # Build the input row using the exact column names expected by the model pipeline
     input_data = {
         "Brand": brand,
         "model": model,
@@ -272,12 +348,20 @@ if st.button("Predict price"):
         "transmission": transmission,
     }
 
-    predicted_price = predict_price_from_dict(input_data)
+    # Basic validation: avoid calling the model with an empty model name
+    if str(model).strip() == "":
+        st.error("Please enter a model name.")
+    else:
+        # Show a loading indicator while preprocessing + prediction runs
+        with st.spinner("Predicting..."):
+            predicted_price = predict_price_from_dict(input_data)
 
-    st.subheader("Estimated price")
-    st.metric("Predicted price", f"{predicted_price:,.0f} £")
+        st.subheader("Estimated price")
+        st.metric("Predicted price", f"{predicted_price:,.0f} £")
 
-
+        # Optional: show the exact input sent to the model
+        with st.expander("Show input data sent to the model"):
+            st.dataframe(pd.DataFrame([input_data]))
 
 
 
