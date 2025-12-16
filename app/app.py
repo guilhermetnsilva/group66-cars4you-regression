@@ -256,7 +256,6 @@ with col2:
     tax = st.number_input("Annual tax (£)", min_value=0, max_value=1000, value=150)
     mpg = st.number_input("MPG", min_value=5.0, max_value=100.0, value=45.0, step=0.5)
     transmission = st.selectbox("Transmission", ["Manual", "Automatic", "Semi-Auto"])
-    previous_owners = st.number_input("Number of previous owners", min_value=0, max_value=10, value=1)
 
 
 if st.button("Predict price"):
@@ -271,7 +270,6 @@ if st.button("Predict price"):
         "mpg": mpg,
         "engineSize": engine_size,
         "transmission": transmission,
-        "previousOwners": previous_owners,
     }
 
     predicted_price = predict_price_from_dict(input_data)
