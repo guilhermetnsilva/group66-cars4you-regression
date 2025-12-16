@@ -16,12 +16,12 @@ This repository contains the final project for Group 66, focused on predicting u
 ├── models/
 │   └── car_price_bundle.joblib       # Trained model + preprocessing bundle for inference
 ├── notebooks/
-│   └── ML_project.ipynb              # Main notebook (EDA → modeling → final submission)
+│   └── group66_notebook.ipynb        # Main notebook (EDA → modeling → final submission)
 ├── src/                              # Python modules (data loading + modeling utilities)
 │   ├── data_loading.py               # Data loading utilities
 │   └── modeling.py                   # Training / evaluation / inference utilities
 ├── submissions/
-│   └── group66_rf_submission.csv     # Final predictions in required format
+│   └── group66_submission.csv        # Final predictions in required format
 ├── requirements.txt                  # Python dependencies
 ├── .gitignore                        # Files/folders excluded from version control
 └── README.md                         # Project documentation
@@ -86,5 +86,5 @@ Run locally from the repository root:
 ```bash
 pip install -r requirements.txt
 streamlit run app/app.py
-
+```
 
