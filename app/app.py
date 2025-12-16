@@ -247,7 +247,7 @@ AVAILABLE_BRANDS = [
 with col1:
     brand = st.selectbox("Brand", AVAILABLE_BRANDS)
     model = st.text_input("Model", "A3")
-    year = st.number_input("Year", min_value=1990, max_value=2025, value=2018)
+    year = st.number_input("Year", min_value=1990, max_value=2020, value=2016)
     fuel_type = st.selectbox("Fuel type", ["Petrol", "Diesel", "Hybrid", "Electric"])
     engine_size = st.number_input("Engine size (L)", min_value=0.5, max_value=6.0, value=1.6, step=0.1)
 
@@ -278,6 +278,9 @@ if st.button("Predict price"):
 
     st.subheader("Estimated price")
     st.metric("Predicted price", f"{predicted_price:,.0f} £")
+
+
+
 
 
 

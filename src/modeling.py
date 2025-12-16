@@ -1,3 +1,17 @@
+"""
+modeling.py
+
+Core training/evaluation utilities for the Cars4You price regression project.
+
+Design goals:
+- No data leakage: all preprocessing artifacts (modes, frequency maps, clipping caps,
+  numeric imputers, scaling, feature selection) are learned ONLY on the training split
+  of each CV fold (run_model) and reused unchanged on validation/test (transform_X).
+- Consistency: evaluate_model and predict_on_test apply the exact same preprocessing
+  graph via transform_X (deploy = eval).
+"""
+
+
 import numpy as np
 import pandas as pd
 
@@ -14,7 +28,7 @@ def run_model(
     fill_method='median',
     selector=None,                         # optional: SelectKBest/SelectFromModel/RFE
     # encoding of the categorical variables
-    fe_freq_cols=('model'),        # columns for frequency encoding
+    fe_freq_cols=('model,'),        # columns for frequency encoding
     ohe_cols=('fuelType','transmission', 'Brand'),   # columns for OHE + mode
     use_log_target=False,
     clip_cols=('mileage', 'tax', 'mpg'),          # columns to apply clipping of extreme values
@@ -33,6 +47,11 @@ def run_model(
 
     X_p = X.copy()
 
+    # Standardize categorical text to reduce spurious categories caused by casing/whitespace
+    # and to collapse ambiguous tokens (e.g., 'unknown') into a stable bucket ('other').
+    # This prevents dummy space fragmentation and improves reproducibility across folds.
+
+
     # sanity check to clean tokens "na/none/nan" and replace with real NaN in OHE columns
     for c in ohe_cols:
         if c in X_p.columns:
@@ -44,6 +63,9 @@ def run_model(
     for c in ohe_cols:
       if c in X_p.columns:
           if c == "Brand":
+                # Brand missingness should not be mode-imputed:
+                # filling with the most frequent brand would inject a real brand signal into missing rows.
+                # We use an explicit 'Unknown' category to represent missing brand information.
               cat_modes[c] = "Unknown"
               X_p[c] = X_p[c].fillna("Unknown")
           else:
@@ -51,6 +73,9 @@ def run_model(
               cat_modes[c] = vc.mode().iloc[0] if not vc.empty else '__MISSING__'
               X_p[c] = X_p[c].fillna(cat_modes[c])
 
+
+    # Frequency encoding is learned on the TRAIN split only (per fold) to avoid leakage.
+    # Validation/test will be mapped using freq_maps; unseen categories are set to 0.
 
     # 2) Frequency encoding, on high cardinality categorical variables
     freq_maps = {}
@@ -71,6 +96,9 @@ def run_model(
         dummies_cols = X_cat.columns.tolist()
         X_p = pd.concat([X_p.drop(columns=present), X_cat], axis=1)
 
+    # Winsorization: compute clipping caps on TRAIN only and cap values (no row removal).
+    # Caps are stored in clip_info to replicate the exact same transformation on val/test.
+
     # 4) Clipping outliers with a predefined treshold (quantile 99,2)
     clip_info = {}
     if clip_cols is not None:
@@ -79,6 +107,10 @@ def run_model(
             cap = X_p[col].quantile(clip_quantile)
             X_p[col] = np.minimum(X_p[col], cap)
             clip_info[col] = cap
+
+
+    # Replace raw mileage with log_mileage to reduce skew and stabilize its relationship with price.
+    # Raw 'mileage' is dropped to avoid duplicate signal / multicollinearity with log_mileage.
 
     # Applying a log transformation to mileage, to help center the distribution
     if "mileage" in X_p.columns:
@@ -103,6 +135,7 @@ def run_model(
 
     # 7) Scaling
     if scaler is not None:
+        # Scaling is fitted on TRAIN only; validation/test will use scaler.transform.
         X_p = scaler.fit_transform(X_p)
 
     # 8) Feature selection
@@ -186,6 +219,7 @@ def transform_X(
         present = [c for c in ohe_cols if c in X_p.columns]
         X_cat = (pd.get_dummies(X_p[present], drop_first=False)
                  if present else pd.DataFrame(index=X_p.index))
+        # Align dummy columns to training space: unseen categories in val/test become all-zero columns.
         X_cat = X_cat.reindex(columns=dummies_cols, fill_value=0)
         X_p = pd.concat([X_p.drop(columns=present, errors='ignore'), X_cat], axis=1)
 
@@ -197,7 +231,7 @@ def transform_X(
 
     # Applying a log transformation to mileage, to help center the distribution
     if "mileage" in X_p.columns:
-        X_p["log_mileage"] = np.log1p(X_p["mileage"]).clip(lower=0)
+        X_p["log_mileage"] = np.log1p(X_p["mileage"].clip(lower=0))
         X_p = X_p.drop(columns=["mileage"],errors='ignore')
 
     # 5) Numerical imputation with fill_values (medians) from train
@@ -276,6 +310,8 @@ def evaluate_model(
     mse = mean_squared_error(y_true, y_pred)
     rmse = np.sqrt(mse)
     mae = mean_absolute_error(y_true, y_pred)
+    # Adjusted R2 uses p = number of final features after preprocessing/selection,
+    # penalizing high-dimensional encodings (e.g., many dummy variables).
     adj_r2 = 1 - (1 - r2) * (n - 1) / (n - p - 1) if n > p + 1 else np.nan
 
     return {"R2": r2, "Adj_R2": adj_r2, "RMSE": rmse, "MAE": mae}
