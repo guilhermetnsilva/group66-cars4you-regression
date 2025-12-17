@@ -1,7 +1,5 @@
 """
-modeling.py
-
-Core training/evaluation utilities for the Cars4You price regression project.
+Core training/evaluation utilities.
 
 Design goals:
 - No data leakage: all preprocessing artifacts (modes, frequency maps, clipping caps,
@@ -10,7 +8,6 @@ Design goals:
 - Consistency: evaluate_model and predict_on_test apply the exact same preprocessing
   graph via transform_X (deploy = eval).
 """
-
 
 import numpy as np
 import pandas as pd
@@ -26,13 +23,13 @@ def run_model(
     scaler=None,
     model=None,
     fill_method='median',
-    selector=None,                         # optional: SelectKBest/SelectFromModel/RFE
+    selector=None,                         
     # encoding of the categorical variables
     fe_freq_cols=('model,'),        # columns for frequency encoding
-    ohe_cols=('fuelType','transmission', 'Brand'),   # columns for OHE + mode
+    ohe_cols=('fuelType','transmission', 'Brand'),   # columns for OHE
     use_log_target=False,
     clip_cols=('mileage', 'tax', 'mpg'),          # columns to apply clipping of extreme values
-    clip_quantile=0.995          # quantile used in clipping
+    clip_quantile=0.992          # quantile used in clipping
 ):
 
     '''
@@ -74,7 +71,7 @@ def run_model(
               X_p[c] = X_p[c].fillna(cat_modes[c])
 
 
-    # Frequency encoding is learned on the TRAIN split only (per fold) to avoid leakage.
+    # Frequency encoding is learned on the train split only (per fold) to avoid leakage.
     # Validation/test will be mapped using freq_maps; unseen categories are set to 0.
 
     # 2) Frequency encoding, on high cardinality categorical variables
@@ -96,7 +93,7 @@ def run_model(
         dummies_cols = X_cat.columns.tolist()
         X_p = pd.concat([X_p.drop(columns=present), X_cat], axis=1)
 
-    # Winsorization: compute clipping caps on TRAIN only and cap values (no row removal).
+    # Winsorization: compute clipping caps on train only and cap values (no row removal).
     # Caps are stored in clip_info to replicate the exact same transformation on val/test.
 
     # 4) Clipping outliers with a predefined treshold (quantile 99,2)
@@ -135,7 +132,7 @@ def run_model(
 
     # 7) Scaling
     if scaler is not None:
-        # Scaling is fitted on TRAIN only; validation/test will use scaler.transform.
+        # Scaling is fitted on train only; validation/test will use scaler.transform.
         X_p = scaler.fit_transform(X_p)
 
     # 8) Feature selection
@@ -172,7 +169,7 @@ def transform_X(
     freq_maps=None,
     dummies_cols=None,
     feature_names=None,
-    fe_freq_cols=('model'),
+    fe_freq_cols=('model,'),
     ohe_cols=('fuelType','transmission', 'Brand'),
     clip_info=None
 ):
@@ -259,8 +256,8 @@ def evaluate_model(
     scaler=None, fill_values=None, selector=None,
     cat_modes=None, freq_maps=None, dummies_cols=None,
     feature_names=None,
-    fe_freq_cols= ('Brand','model'),
-    ohe_cols=('fuelType','transmission'),
+    fe_freq_cols= ('model',),
+    ohe_cols=('fuelType','transmission','Brand'),
     use_log_target=False,
     clip_info=None,
     brand_mean=None,
@@ -298,7 +295,7 @@ def evaluate_model(
     y_pred_raw = np.asarray(y_pred_raw).ravel()
 
     if use_log_target:
-        # model used log(price), we have to convert to the original scale
+        # model used log(price), so we have to convert to the original scale
         y_pred = np.expm1(y_pred_raw)
     else:
         y_pred = y_pred_raw
@@ -323,7 +320,7 @@ def avg_scores(
     selector=None,
     fe_freq_cols= ('Brand','model'),
     ohe_cols=('fuelType','transmission'),
-    use_log_target=True, # we define wether to work with log(price) or price
+    use_log_target=True,
     clip_cols=('mileage', 'tax','mpg', 'engineSize'),
     clip_quantile=0.992
 ):
@@ -396,6 +393,14 @@ def avg_scores(
     summary = pd.concat([df_tr, df_va], axis=1).sort_index()
     print("\n=== Metrics (Mean K-Fold) ===")
     print(summary.round(4))
+
+    # MAE standard deviation across folds
+    df_val_full = pd.DataFrame(metrics_val)
+    mae_val_std = df_val_full["MAE"].std()
+    print(
+        f"\nMAE Validation (mean ± std): "
+        f"{summary.loc['MAE', 'Validation']:.1f} ± {mae_val_std:.1f}"
+    )
 
     # Frequency of selection, when using a selector, for feature selection
     selection_freq = None

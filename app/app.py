@@ -239,7 +239,7 @@ def predict_price_from_dict(input_data: dict) -> float:
 st.set_page_config(page_title="Used Car Price Prediction", page_icon="🚗")
 st.title("Used Car Price Prediction")
 
-# Short description under the title
+# Description under the title
 st.markdown("""
 Enter a car configuration and click **Predict price**.
 """)
@@ -333,7 +333,6 @@ with col2:
         help="Transmission type."
     )
 
-# Button with input validation + spinner feedback
 if st.button("Predict price"):
     # Build the input row using the exact column names expected by the model pipeline
     input_data = {
@@ -359,7 +358,7 @@ if st.button("Predict price"):
         st.subheader("Estimated price")
         st.metric("Predicted price", f"{predicted_price:,.0f} £")
 
-        # Optional: show the exact input sent to the model
+        # Show the input sent to the model
         with st.expander("Show input data sent to the model"):
             st.dataframe(pd.DataFrame([input_data]))
 
